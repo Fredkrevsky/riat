@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 void main() {
   group('PaymentService', () {
     const String port = '8083';
-    const String host = 'http://0.0.0.0:$port';
+    const String host = 'http://localhost:$port';
     late final Process process;
 
     setUpAll(() async {
