@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
 void main() {
-  group('CartService', () {
+  group('TaskAssignmentService', () {
     const String port = '8081';
     const String host = 'http://localhost:$port';
     late final Process process;
@@ -24,57 +24,58 @@ void main() {
       process.kill();
     });
 
-    test('/cart, post returns 200', () async {
+    test('/tasks, post returns 200', () async {
       final http.Response response = await http.post(
-        Uri.parse('$host/cart'),
+        Uri.parse('$host/tasks'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': AuthToken.test$,
         },
-        body: '{"productId": "1", "quantity": 2}',
+        body: '{"taskId": "1", "description": "Complete project report"}',
       );
 
       expect(response.statusCode, 200);
-      expect(response.body, 'Products added to cart');
+      expect(response.body, 'Task assigned successfully');
     });
 
-    test('/cart, get returns 200', () async {
+    test('/tasks, get returns 200', () async {
       final http.Response response = await http.get(
-        Uri.parse('$host/cart'),
+        Uri.parse('$host/tasks'),
         headers: <String, String>{
           'Authorization': AuthToken.test$,
         },
       );
 
       expect(response.statusCode, 200);
-      expect(response.body.contains('"productId":"1"'), isTrue);
-      expect(response.body.contains('"quantity":2'), isTrue);
+      expect(response.body.contains('"taskId":"1"'), isTrue);
+      expect(response.body.contains('"description":"Complete project report"'), isTrue);
     });
 
-    test('/cart, post returns 400 (productId missing)', () async {
+    test('/tasks, post returns 400 (taskId missing)', () async {
       final http.Response response = await http.post(
-        Uri.parse('$host/cart'),
+        Uri.parse('$host/tasks'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': AuthToken.test$,
         },
-        body: '{"quantity": 2}', // Missing "productId"
+        body: '{"description": "Complete project report"}', // Missing "taskId"
       );
       expect(response.statusCode, 400);
       expect(response.body, 'Invalid data format');
     });
 
-    test('/cart, post returns 400 (quantity missing)', () async {
+    test('/tasks, post returns 400 (description missing)', () async {
       final http.Response response = await http.post(
-        Uri.parse('$host/cart'),
+        Uri.parse('$host/tasks'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': AuthToken.test$,
         },
-        body: '{"productId": "1"}', // Missing "quantity"
+        body: '{"taskId": "1"}', // Missing "description"
       );
       expect(response.statusCode, 400);
       expect(response.body, 'Invalid data format');
     });
   });
 }
+

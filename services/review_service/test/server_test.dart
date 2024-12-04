@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
 void main() {
-  group('ReviewService', () {
+  group('PerformanceReviewService', () {
     const String port = '8085';
     const String host = 'http://localhost:$port';
     late final Process process;
@@ -31,25 +31,26 @@ void main() {
           'Content-Type': 'application/json',
           'Authorization': AuthToken.test$,
         },
-        body: '{"productId": "1", "rating": 4, "comment": "Great product!"}',
+        body: '{"employeeId": "123", "rating": 5, "comment": "Excellent performance!"}',
       );
 
       expect(response.statusCode, 200);
-      expect(response.body, 'Review added successfully');
+      expect(response.body, 'Performance review added successfully');
     });
 
     test('/review, get returns 200', () async {
       final http.Response response = await http.get(
-        Uri.parse('$host/review?productId=1'),
+        Uri.parse('$host/review?employeeId=123'),
         headers: <String, String>{
           'Authorization': AuthToken.test$,
         },
       );
 
       expect(response.statusCode, 200);
-      expect(response.body.contains('"productId":"1"'), isTrue);
-      expect(response.body.contains('"rating":4'), isTrue);
-      expect(response.body.contains('"comment":"Great product!"'), isTrue);
+      expect(response.body.contains('"employeeId":"123"'), isTrue);
+      expect(response.body.contains('"rating":5'), isTrue);
+      expect(response.body.contains('"comment":"Excellent performance!"'), isTrue);
     });
   });
 }
+

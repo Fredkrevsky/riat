@@ -6,7 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-import '../lib/review.dart';
+import '../lib/performance_review.dart';
 
 final Router _router = Router()
   ..get('/review', _handleReviewGetRequest)
@@ -22,15 +22,15 @@ Future<void> main() async {
     int.parse(Platform.environment['PORT'] ?? '8085'),
   );
 
-  print('ReviewService running on ${server.address.host}:${server.port}');
+  print('PerformanceReviewService running on ${server.address.host}:${server.port}');
 }
 
 Future<Response> _handleReviewGetRequest(Request request) async {
-  final String? productId = request.url.queryParameters['productId'];
+  final String? employeeId = request.url.queryParameters['employeeId'];
 
-  if (productId == null) return Response.badRequest(body: 'Missing productId');
+  if (employeeId == null) return Response.badRequest(body: 'Missing employeeId');
 
-  final List<Review> reviews = reviewsByProductId[productId] ?? <Review>[];
+  final List<PerformanceReview> reviews = reviewsByEmployeeId[employeeId] ?? <PerformanceReview>[];
 
   return Response.ok(
     jsonEncode(reviews),
@@ -42,17 +42,18 @@ Future<Response> _handleReviewPostRequest(Request request) async {
   final String body = await request.readAsString();
   final Map<String, Object?> json = jsonDecode(body);
 
-  if (json case {'productId': String productId, 'rating': int rating, 'comment': String comment}) {
-    final Review review = Review(productId, rating, comment);
+  if (json case {'employeeId': String employeeId, 'rating': int rating, 'comment': String comment}) {
+    final PerformanceReview review = PerformanceReview(employeeId, rating, comment);
 
-    reviewsByProductId.update(
-      productId,
-      (List<Review> reviews) => reviews..add(review),
-      ifAbsent: () => <Review>[review],
+    reviewsByEmployeeId.update(
+      employeeId,
+      (List<PerformanceReview> reviews) => reviews..add(review),
+      ifAbsent: () => <PerformanceReview>[review],
     );
 
-    return Response.ok('Review added successfully');
+    return Response.ok('Performance review added successfully');
   }
 
   return Response.badRequest(body: 'Invalid data format');
 }
+

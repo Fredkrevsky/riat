@@ -6,11 +6,11 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-import '../lib/cart.dart';
+import '../lib/task.dart';
 
 final Router _router = Router()
-  ..get('/cart', _handleCartGetRequest)
-  ..post('/cart', _handleCartPostRequest);
+  ..get('/tasks', _handleTaskGetRequest)
+  ..post('/tasks', _handleTaskPostRequest);
 
 Future<void> main() async {
   final HttpServer server = await serve(
@@ -22,39 +22,40 @@ Future<void> main() async {
     int.parse(Platform.environment['PORT'] ?? '8081'),
   );
 
-  print('CartService running on ${server.address.host}:${server.port}');
+  print('TaskAssignmentService running on ${server.address.host}:${server.port}');
 }
 
-Future<Response> _handleCartGetRequest(Request request) async {
+Future<Response> _handleTaskGetRequest(Request request) async {
   final String userId = request.context['userId'] as String;
 
-  final Cart cart = cartByUserId[userId] ??= Cart.empty();
+  final TaskList tasks = tasksByUserId[userId] ??= TaskList.empty();
 
   return Response.ok(
-    jsonEncode(cart.items),
+    jsonEncode(tasks.items),
     headers: <String, String>{
       'Content-Type': 'application/json',
     },
   );
 }
 
-Future<Response> _handleCartPostRequest(Request request) async {
+Future<Response> _handleTaskPostRequest(Request request) async {
   final String userId = request.context['userId'] as String;
 
   final String body = await request.readAsString();
   final Map<String, Object?> json = jsonDecode(body);
 
-  if (json case {'productId': String productId, 'quantity': int quantity}) {
-    final CartItem item = CartItem(productId, quantity);
+  if (json case {'taskId': String taskId, 'description': String description}) {
+    final TaskItem task = TaskItem(taskId, description);
 
-    cartByUserId.update(
+    tasksByUserId.update(
       userId,
-      (Cart cart) => cart..items.add(item),
-      ifAbsent: () => Cart(<CartItem>[item]),
+      (TaskList tasks) => tasks..items.add(task),
+      ifAbsent: () => TaskList(<TaskItem>[task]),
     );
 
-    return Response.ok('Products added to cart');
+    return Response.ok('Task assigned successfully');
   }
 
   return Response.badRequest(body: 'Invalid data format');
 }
+

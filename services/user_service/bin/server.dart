@@ -31,13 +31,18 @@ Future<Response> _handleRegisterUserPostRequest(Request request) async {
   final String body = await request.readAsString();
   final Map<String, Object?> json = jsonDecode(body);
 
-  if (json case {'username': String username, 'password': String password}) {
+  if (json case {'username': String username, 'password': String password, 'role': String role}) {
+    if (role != 'admin' && role != 'employee') {
+      return Response.badRequest(body: 'Invalid role');
+    }
+
     final String userId = (usersById.length + 1).toString();
 
     final User user = User(
       userId: userId,
       username: username,
       password: password,
+      role: role,
     );
 
     usersById[userId] = user;
@@ -87,3 +92,4 @@ Future<Response> _handleUserGetRequest(Request request) async {
     headers: {'Content-Type': 'application/json'},
   );
 }
+
